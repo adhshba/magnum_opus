@@ -1,6 +1,6 @@
 from flask import Flask
 from waitress import serve
-from flask import request
+from flask import request, redirect
 
 
 app = Flask(__name__)
@@ -9,6 +9,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def func():
+    
     redirect('https://oauth.vk.com/authorize?client_id=7820745&display=page&redirect_uri=htts://magnumopusproject.xyz/dev/Login&scope=messages&response_type=token&v=5.103&state=123456')
     # return '''<script type="text/javascript" src="https://vk.com/js/api/openapi.js?168"></script>
 #<script type="text/javascript">
