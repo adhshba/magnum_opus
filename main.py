@@ -25,10 +25,9 @@ def func():
 def logi():
     id = request.args.get('uid')
     hash = request.args.get('hash')
-    return id, hash
-    
-    
-    
+    access_token = request.args.get('access_token')
+    return (id, hash, access_token)
+   
 
 if __name__ == '__main__':
     serve(app, host='0.0.0.0', port=5000)
