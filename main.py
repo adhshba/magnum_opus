@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def func():
-    return '''<a href='https://oauth.vk.com/authorize?client_id=7820745&display=page&redirect_uri=htts://magnumopusproject.xyz/dev/Login&scope=messages&response_type=token&v=5.103&state=123456'>rrr</a>'''
+    return '''<a href='https://oauth.vk.com/authorize?client_id=7820745&display=page&redirect_uri=https://magnumopusproject.xyz/dev/Login&scope=messages&response_type=token&v=5.103&state=123456'>rrr</a>'''
     # redirect('https://oauth.vk.com/authorize?client_id=7820745&display=page&redirect_uri=htts://magnumopusproject.xyz/dev/Login&scope=messages&response_type=token&v=5.103&state=123456', code=301)
     # return '''<script type="text/javascript" src="https://vk.com/js/api/openapi.js?168"></script>
 #<script type="text/javascript">
