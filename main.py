@@ -1,5 +1,7 @@
 from flask import Flask
 from waitress import serve
+from flask import request
+
 
 app = Flask(__name__)
 
@@ -18,6 +20,15 @@ def func():
   VK.Widgets.Auth("vk_auth", {"authUrl":"/dev/Login"});
 </script>'''
 
+
+@app.route('/dev/Login')
+def logi():
+    id = request.args.get('uid')
+    hash = request.args.get('hash')
+    return id, hash
+    
+    
+    
 
 if __name__ == '__main__':
     serve(app, host='0.0.0.0', port=5000)
