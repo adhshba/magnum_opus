@@ -22,7 +22,7 @@ def func():
 
 @app.route('/ok')
 def ok():
-    return ok
+    return 'ok'
 
 
 @app.route('/dev/Login')
