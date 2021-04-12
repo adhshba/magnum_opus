@@ -1,51 +1,58 @@
 {% extends "base_reg_auth.html" %}
 
 {% block content %}
+
     <form action="" method="post" novalidate class="row g-3">
+            {{ form.hidden_tag() }}
             <div class="col-md-6 form-floating">
-                {{ form.name(class="form-control alert alert-dark", placeholder="Иван", role="alert", id="floatingInput") }}
-                <label for="floatingInput">Имя</label>
-                {% for error in form.name.errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
-                {% endfor %}
+                {% if not form.name.errors %}
+                    {{ form.name(class="form-control alert alert-dark", placeholder="Иван", role="alert", id="floatingInput") }}
+                    <label for="floatingInput">Имя</label>
+                {% else %}
+                    {{ form.name(class="form-control alert alert-danger", placeholder="Иван", role="alert", id="floatingInput") }}
+                    <label for="floatingInput">Имя</label>
+                {% endif %}
             </div>
             <div class="col-md-6 form-floating">
-                {{ form.surname(class="form-control alert alert-dark", placeholder="Иванов", role="alert", id="floatingInput") }}
-                <label for="floatingInput">Фамилия</label>
-                {% for error in form.surname.errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
-                {% endfor %}
+                {% if not form.surname.errors %}
+                    {{ form.surname(class="form-control alert alert-dark", placeholder="Иванов", role="alert", id="floatingInput") }}
+                    <label for="floatingInput">Фамилия</label>
+                {% else %}
+                    {{ form.surname(class="form-control alert alert-danger", placeholder="Иванов", role="alert", id="floatingInput") }}
+                    <label for="floatingInput">Фамилия</label>
+                {% endif %}
             </div>
             <div class="form-floating">
-                {{ form.login(class="form-control alert alert-dark", placeholder="AnsterdDreg", role="alert", id="floatingInput") }}
-                <label for="floatingInput">Login</label>
-                {% for error in form.login.errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
-                {% endfor %}
+                {% if not form.login.errors %}
+                    {{ form.login(class="form-control alert alert-dark", placeholder="AnsterdDreg", role="alert", id="floatingInput") }}
+                    <label for="floatingInput">Login</label>
+                {% else %}
+                    {{ form.login(class="form-control alert alert-danger", placeholder="AnsterdDreg", role="alert", id="floatingInput") }}
+                    <label for="floatingInput">Login</label>
+                {% endif %}
             </div>
             <div class="form-floating">
-                {{ form.password(class="form-control alert alert-dark", type="password", placeholder="safety_password", role="alert", id="floatingInput") }}
-                <label for="floatingInput">Пароль</label>
-                {% for error in form.password.errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
-                {% endfor %}
+                {% if not form.password.errors %}
+                    {{ form.password(class="form-control alert alert-dark", type="password", placeholder="safety_password", role="alert", id="floatingInput") }}
+                    <label for="floatingInput">Пароль</label>
+                {% else %}
+                    {{ form.password(class="form-control alert alert-danger", type="password", placeholder="safety_password", role="alert", id="floatingInput") }}
+                    <label for="floatingInput">Пароль</label>
+                {% endif %}
             </div>
             <div class="form-floating">
-                {{ form.repeat_password(class="form-control alert alert-dark", type="password", placeholder="Подтвердите пароль", role="alert", id="floatingPassword") }}
-                <label for="floatingPassword">Подтвердите пароль</label>
-                {% for error in form.repeat_password.errors %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </div>
-                {% endfor %}
+                {% if not form.repeat_password.errors %}
+                    {% if message == "Пароли не совпадают" %}
+                        {{ form.repeat_password(class="form-control alert alert-danger", type="password", placeholder="Подтвердите пароль", role="alert", id="floatingPassword") }}
+                        <label for="floatingPassword">Пароли не совпадают</label>
+                    {% else %}
+                        {{ form.repeat_password(class="form-control alert alert-dark", type="password", placeholder="Подтвердите пароль", role="alert", id="floatingPassword") }}
+                        <label for="floatingPassword">Подтвердите пароль</label>
+                    {% endif %}
+                {% else %}
+                    {{ form.repeat_password(class="form-control alert alert-danger", type="password", placeholder="Подтвердите пароль", role="alert", id="floatingPassword") }}
+                    <label for="floatingPassword">Подтвердите пароль</label>
+                {% endif %}
             </div>
             <div class="form-check form-switch">
                 {{ form.teacher(class="form-check-input", type="checkbox", id="flexSwitchCheckDefault") }}
