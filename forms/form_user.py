@@ -9,5 +9,5 @@ class User_reg(FlaskForm):
     login = StringField('Login', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
     repeat_password = PasswordField('Повторите пароль', validators=[DataRequired()])
-    teacher = BooleanField('Я учитель', validators=[DataRequired()])
-    submit = SubmitField('Зарегистрироваться', validators=[DataRequired()])
+    teacher = BooleanField('Я учитель')
+    submit = SubmitField('Зарегистрироваться')
