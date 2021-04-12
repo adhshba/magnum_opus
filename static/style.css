@@ -1,0 +1,36 @@
+body {
+    background: #D7D7D7;
+}
+
+form {
+    width: 500px;
+    background: #333;
+    position: fixed; top: 50%; left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    border: 4px solid black;
+    border-radius: 10px;
+}
+
+.btn {
+    position: relative;
+    left: 50%;
+    transform: translate(-50%, 0);
+}
+
+label {
+    color: #52555e;
+}
+
+.form-check-label {
+    color: white
+}
+
+.form-check {
+    margin-left: 2%;
+}
+
+.vk_allow_messages_from_community {
+    margin-left: 50%;
+}
