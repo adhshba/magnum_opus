@@ -30,13 +30,13 @@
                 {% endfor %}
             </div>
             <div class="form-floating">
-            {{ form.password(class="form-control alert alert-dark", type="password", placeholder="safety_password", role="alert", id="floatingInput") }}
-            <label for="floatingInput">Пароль</label>
-            {% for error in form.password.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
-            {% endfor %}
+                {{ form.password(class="form-control alert alert-dark", type="password", placeholder="safety_password", role="alert", id="floatingInput") }}
+                <label for="floatingInput">Пароль</label>
+                {% for error in form.password.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
             </div>
             <div class="form-floating">
                 {{ form.repeat_password(class="form-control alert alert-dark", type="password", placeholder="Подтвердите пароль", role="alert", id="floatingPassword") }}
@@ -54,7 +54,7 @@
             <script type="text/javascript" src="https://vk.com/js/api/openapi.js?168"></script>
             <div id="vk_allow_messages_from_community"></div>
             <script type="text/javascript">
-            VK.Widgets.AllowMessagesFromCommunity("vk_allow_messages_from_community", {height: 30}, 2158488);
+                VK.Widgets.AllowMessagesFromCommunity("vk_allow_messages_from_community", {height: 30}, 203859351);
             </script>
             <p>{{ form.submit(type="submit", class="btn btn-light") }}</p>
     </form>
