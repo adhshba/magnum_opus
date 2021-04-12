@@ -1,18 +1,22 @@
 from flask import Flask
 from waitress import serve
-from flask import request, redirect
+from forms.form_user import User_reg
+from flask import request, redirect, render_template
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 
-@app.route('/')
+@app.route('/', methods=['POST', 'GET'])
 def func():
-    return '''<script type="text/javascript" src="https://vk.com/js/api/openapi.js?168"></script>
-    <!-- VK Widget -->
-    <div id="vk_allow_messages_from_community"></div>
-    <script type="text/javascript">
-    VK.Widgets.AllowMessagesFromCommunity("vk_allow_messages_from_community", {}, 203859351);
-    </script>'''
+    form = User_reg()
+    if form.validate_on_submit():
+        if form.password.data != form.password_again.data:
+            return render_template('register.html', title='Регистрация',
+                                   form=form,
+                                   message="Пароли не совпадают")
+        # проверка уникальности логина
+    return render_template("register.html", form=form, title='Регистрация')
 
 
 if __name__ == '__main__':
