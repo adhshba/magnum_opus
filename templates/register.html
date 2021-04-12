@@ -1,0 +1,62 @@
+{% extends "base_reg_auth.html" %}
+
+{% block content %}
+    <form action="" method="post" novalidate class="row g-3">
+            <div class="col-md-6 form-floating">
+                {{ form.name(class="form-control alert alert-dark", placeholder="Иван", role="alert", id="floatingInput") }}
+                <label for="floatingInput">Имя</label>
+                {% for error in form.name.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6 form-floating">
+                {{ form.surname(class="form-control alert alert-dark", placeholder="Иванов", role="alert", id="floatingInput") }}
+                <label for="floatingInput">Фамилия</label>
+                {% for error in form.surname.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="form-floating">
+                {{ form.login(class="form-control alert alert-dark", placeholder="AnsterdDreg", role="alert", id="floatingInput") }}
+                <label for="floatingInput">Login</label>
+                {% for error in form.login.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="form-floating">
+            {{ form.password(class="form-control alert alert-dark", type="password", placeholder="safety_password", role="alert", id="floatingInput") }}
+            <label for="floatingInput">Пароль</label>
+            {% for error in form.password.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+            </div>
+            <div class="form-floating">
+                {{ form.repeat_password(class="form-control alert alert-dark", type="password", placeholder="Подтвердите пароль", role="alert", id="floatingPassword") }}
+                <label for="floatingPassword">Подтвердите пароль</label>
+                {% for error in form.repeat_password.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="form-check form-switch">
+                {{ form.teacher(class="form-check-input", type="checkbox", id="flexSwitchCheckDefault") }}
+                <label class="form-check-label" for="flexSwitchCheckDefault">Я учитель</label>
+            </div>
+            <script type="text/javascript" src="https://vk.com/js/api/openapi.js?168"></script>
+            <div id="vk_allow_messages_from_community"></div>
+            <script type="text/javascript">
+            VK.Widgets.AllowMessagesFromCommunity("vk_allow_messages_from_community", {height: 30}, 2158488);
+            </script>
+            <p>{{ form.submit(type="submit", class="btn btn-light") }}</p>
+    </form>
+
+{% endblock %}
