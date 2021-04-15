@@ -1,7 +1,12 @@
 {% extends "base_reg_auth.html" %}
 
 {% block content %}
-
+    <div class="buttons">
+        <button type="button" class="reg btn btn-secondary" disabled>Регистрация</button>
+        <a href="http://127.0.0.1:1111/authorize">
+            <button type="button" class="auth btn btn-dark btn-lg">Вход</button>
+        </a>
+    </div>
     <form action="" method="post" novalidate class="row g-3">
             {{ form.hidden_tag() }}
             <div class="col-md-6 form-floating">
@@ -24,8 +29,13 @@
             </div>
             <div class="form-floating">
                 {% if not form.login.errors %}
-                    {{ form.login(class="form-control alert alert-dark", placeholder="AnsterdDreg", role="alert", id="floatingInput") }}
-                    <label for="floatingInput">Login</label>
+                    {% if message == "Такой логин уже существует!" %}
+                        {{ form.login(class="form-control alert alert-danger", placeholder="AnsterdDreg", role="alert", id="floatingInput") }}
+                        <label for="floatingInput">Такой логин уже существует! Придумайте новый</label>
+                    {% else %}
+                        {{ form.login(class="form-control alert alert-dark", placeholder="AnsterdDreg", role="alert", id="floatingInput") }}
+                        <label for="floatingInput">Login</label>
+                    {% endif %}
                 {% else %}
                     {{ form.login(class="form-control alert alert-danger", placeholder="AnsterdDreg", role="alert", id="floatingInput") }}
                     <label for="floatingInput">Login</label>
@@ -58,12 +68,14 @@
                 {{ form.teacher(class="form-check-input", type="checkbox", id="flexSwitchCheckDefault") }}
                 <label class="form-check-label" for="flexSwitchCheckDefault">Я учитель</label>
             </div>
-            <script type="text/javascript" src="https://vk.com/js/api/openapi.js?168"></script>
-            <div id="vk_allow_messages_from_community"></div>
-            <script type="text/javascript">
-                VK.Widgets.AllowMessagesFromCommunity("vk_allow_messages_from_community", {height: 30}, 203859351);
-            </script>
             <p>{{ form.submit(type="submit", class="btn btn-light") }}</p>
     </form>
+    {% if message == "Введите настоящую фамилию и имя!" %}
+        <div id="footer">
+            <div class="alert alert-primary error_al" role="alert">
+                Введите настоящую фамилию и имя!
+            </div>
+        </div>
+    {% endif %}
 
 {% endblock %}
