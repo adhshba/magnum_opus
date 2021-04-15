@@ -11,7 +11,9 @@ itsdangerous==1.1.0
 Jinja2==2.11.3
 lo==0.2.0
 MarkupSafe==1.1.1
+pip==21.0.1
 requests==2.25.1
+setuptools==56.0.0
 six==1.15.0
 SQLAlchemy==1.4.7
 typing-extensions==3.7.4.3
