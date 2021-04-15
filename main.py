@@ -27,8 +27,8 @@ def register():
                                    message="Такой логин уже существует!")
         user = User()
         if form.name.data.isalpha() and form.surname.data.isalpha():
-            user.name = form.name.data.upper()
-            user.surname = form.surname.data.upper()
+            user.name = form.name.data.capitalize()
+            user.surname = form.surname.data.capitalize()
         else:
             return render_template('register.html', title='Регистрация',
                                    form=form,
