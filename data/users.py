@@ -11,5 +11,6 @@ class User(SqlAlchemyBase):
     login = sqlalchemy.Column(sqlalchemy.String,
                               index=True, unique=True, nullable=True)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    surname = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     teacher = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
