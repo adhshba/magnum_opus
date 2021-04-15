@@ -11,3 +11,9 @@ class User_reg(FlaskForm):
     repeat_password = PasswordField('Повторите пароль', validators=[DataRequired()])
     teacher = BooleanField('Я учитель', validators=[DataRequired()])
     submit = SubmitField('Зарегистрироваться', validators=[DataRequired()])
+    
+    
+class User_authorize(FlaskForm):
+    login = StringField('Login', validators=[DataRequired()])
+    password = PasswordField('Пароль', validators=[DataRequired()])
+    submit = SubmitField('Войти')
