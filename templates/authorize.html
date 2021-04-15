@@ -1,0 +1,41 @@
+{% extends "base_reg_auth.html" %}
+
+{% block content %}
+    <div class="buttons">
+        <a href="http://127.0.0.1:1111/">
+            <button type="button" class="reg btn btn-dark btn-lg">Регистрация</button>
+        </a>
+        <button type="button" class="auth btn btn-secondary auth" disabled>Вход</button>
+    </div>
+    <form action="" method="post" novalidate class="row g-3">
+            {{ form.csrf_token }}
+            <h1>Вход</h1>
+            <div class="form-floating">
+                {% if not form.login.errors %}
+                    {{ form.login(class="form-control alert alert-dark", placeholder="AnsterdDreg", role="alert", id="floatingInput1") }}
+                    <label for="floatingInput1">Login</label>
+                {% else %}
+                    {{ form.login(class="form-control alert alert-danger", placeholder="AnsterdDreg", role="alert", id="floatingInput1") }}
+                    <label for="floatingInput1">Login</label>
+                {% endif %}
+            </div>
+            <div class="form-floating">
+                {% if not form.password.errors %}
+                    {{ form.password(class="form-control alert alert-dark", type="password", role="alert", placeholder="password", id="floatingInput2") }}
+                    <label for="floatingInput2">Пароль</label>
+                {% else %}
+                    {{ form.password(class="form-control alert alert-danger", type="password", role="alert", placeholder="password", id="floatingInput2") }}
+                    <label for="floatingInput2">Пароль</label>
+                {% endif %}
+            </div>
+            <p>{{ form.submit(type="submit", class="btn btn-light") }}</p>
+    </form>
+    {% if message == "Неправильный логин или пароль" %}
+        <div id="footer">
+            <div class="alert alert-primary error_al" role="alert">
+                Неправильный логин или пароль.
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}
