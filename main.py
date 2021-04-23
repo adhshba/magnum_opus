@@ -1,13 +1,10 @@
 from flask import Flask
 import hashlib
-import schedule
 from random import choice, sample, randint
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from waitress import serve
 import vk_api
 from data import db_session
-from data.question import Question
-from data.tests import Tests
 from data.users import User
 from data.marks import Marks
 from data.exercises import Exercises
@@ -15,7 +12,6 @@ from forms.form_user import User_reg, User_authorize, \
     Join_to_class, Edit_name, Edit_surname, Class_num_add, \
     Add_class, Subject, Edit_mark, Delete_mark, Edit_homework, Add_homework
 from flask import request, redirect, render_template
-from datetime import datetime
 import datetime
 
 app = Flask(__name__)
@@ -197,10 +193,16 @@ def main_page():
             return redirect('/main_page')
         else:
             message = 'Введите настоящую фамилию'
-    if current_user.teacher and (not current_user.subject or not current_user.class_num):
-        disabled = True
-    else:
-        disabled = False
+    if current_user.teacher:
+        if not current_user.subject or not current_user.class_num:
+            disabled = True
+        else:
+            disabled = False
+    if not current_user.teacher:
+        if not current_user.grade:
+            disabled = True
+        else:
+            disabled = False
     return render_template(html, title='Личный кабинет', form=form,
                            surname=current_user.surname, name=current_user.name,
                            grade=grade, grade_id=current_user.grade, form_name=form_name,
@@ -240,6 +242,13 @@ def marks():
                 dict_marks[subject] = [{'date': i.date, 'mark': i.mark}]
             else:
                 dict_marks[subject].append({'date': i.date, 'mark': i.mark})
+        print(dict_marks)
+        for key, val in dict_marks.items():
+            print(val)
+            sr_ball = [int(i['mark']) for i in val]
+            dict_marks[key].append({'sr_ball': sum(sr_ball) / len(sr_ball)})
+        dates.append('Средний балл')
+
         return render_template('student_marks.html', dates=dates, dict_marks=dict_marks)
 
 
@@ -268,11 +277,15 @@ def table_marks():
                         marks_dict[names[num]] = [{'date': j.date,
                                                    'mark': j.mark,
                                                    'id': f'table/edit?mark_id={j.id}'}]
+        for key, val in marks_dict.items():
+            stud_marks = [int(j['mark']) for j in val]
+            marks_dict[key].append({'sr_ball': sum(stud_marks) / len(stud_marks)})
         d = [i.date for i in marks]
         dates = ['Фамилия']
         for i in d:
             if i not in dates:
                 dates.append(i)
+        dates.append('Средний балл')
         class_id = 'table/add?class_id=' + class_id
         return render_template('teacher_marks.html', edit=True, marks=marks_dict, dates=dates, class_id=class_id)
 
@@ -290,12 +303,12 @@ def edit_marks():
             mark.mark = form_edit.mark.data
             db_sess.add(mark)
             db_sess.commit()
-            return redirect('/main_page')
+            return redirect('/marks')
     form_delete = Delete_mark()
     if form_delete.validate_on_submit():
         db_sess.delete(mark)
         db_sess.commit()
-        return redirect('/main_page')
+        return redirect('/marks')
     return render_template('edit_mark.html', surname=student.surname, date=mark.date,
                            form_edit=form_edit, form_delete=form_delete)
 
@@ -306,7 +319,7 @@ def homework():
     db_sess = db_session.create_session()
     if current_user.teacher:
         classes = get_classes('homework/table?class_id=')
-        return render_template('teacher_marks.html', classes=classes, table=True)
+        return render_template('teacher_homework.html', classes=classes, table=True)
     else:
         homeworks = db_sess.query(Exercises).\
                         filter(Exercises.class_id == current_user.grade).\
@@ -315,7 +328,7 @@ def homework():
         for i in homeworks:
             subject = db_sess.query(User).filter(User.id == i.teacher_id, User.teacher).first().subject
             hw_list.append({'date': i.date, 'text': i.homework, 'subject': subject})
-        return render_template('student_homework.html', hw_list=hw_list)
+        return render_template('student_homework.html', hw_list=hw_list, table=True)
 
 
 @app.route('/homework/table')
@@ -346,10 +359,11 @@ def edit_homework():
         form = Edit_homework()
         if form.validate_on_submit():
             task = db_sess.query(Exercises).filter(Exercises.id == homework_id).first()
+            class_id = f'/homework/table?class_id={task.class_id}'
             task.homework = form.text.data
             db_sess.add(task)
             db_sess.commit()
-            return redirect('/homework/table')
+            return redirect(class_id)
         return render_template('edit_homework.html', form=form)
 
 
@@ -364,16 +378,18 @@ def add_homework():
             exercise = Exercises()
             exercise.homework = form.text.data
             exercise.class_id = class_id
+
             exercise.teacher_id = current_user.id
             date = form.date.data
             ex = db_sess.query(Exercises).filter(Exercises.date == date).first()
             if ex:
                 db_sess.delete(ex)
             exercise.date = date
-            db_sess.add(exercise)
-            db_sess.commit()
+            if db_sess.query(User).filter(User.grade == class_id).first():
+                db_sess.add(exercise)
+                db_sess.commit()
             # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            return redirect(f'http://127.0.0.1:6112/homework/table?class_id={class_id}')
+            return redirect(f'http://127.0.0.1:4444/homework/table?class_id={class_id}')
         return render_template('add_homework.html', form=form)
 
 
@@ -389,22 +405,25 @@ def add_mark():
         if request.method == 'GET':
             return render_template('add_marks.html', surnames=surnames)
         elif request.method == 'POST':
-            date = request.form['date']
-            date = datetime.date(*[int(i) for i in date.split('-')])
-            for i in surnames:
-                student = db_sess.query(User).filter(User.surname == i, User.grade == class_id).first()
-                students_marks = db_sess.query(Marks).filter(Marks.user_id == student.id, Marks.date == date).first()
-                if students_marks:
-                    db_sess.delete(students_marks)
+            try:
+                date = request.form['date']
+                date = datetime.date(*[int(i) for i in date.split('-')])
+                for i in surnames:
+                    student = db_sess.query(User).filter(User.surname == i, User.grade == class_id).first()
+                    students_marks = db_sess.query(Marks).filter(Marks.user_id == student.id, Marks.date == date).first()
+                    if students_marks:
+                        db_sess.delete(students_marks)
+                        db_sess.commit()
+                    mark = Marks()
+                    mark.user_id = int(student.id)
+                    mark.teacher_id = int(current_user.id)
+                    mark.date = date
+                    mark.mark = int(request.form[i])
+                    db_sess.add(mark)
                     db_sess.commit()
-                mark = Marks()
-                mark.user_id = int(student.id)
-                mark.teacher_id = int(current_user.id)
-                mark.date = date
-                mark.mark = int(request.form[i])
-                db_sess.add(mark)
-                db_sess.commit()
-            return redirect(f'/marks/table?class_id={class_id}')
+                    return redirect(f'/marks/table?class_id={class_id}')
+            except Exception:
+                return redirect(f'/marks/table?class_id={class_id}')
 
 
 @app.route('/reg')
@@ -432,19 +451,6 @@ def logout():
     return redirect("/")
 
 
-def cleaning():
-    db_sess = db_session.create_session()
-    current_date = datetime.now().date()
-    for i in db_sess.query(Tests.id).filter(Tests.shelf_life <= current_date).all():
-        db_sess.query(Question).filter(Question.id_test == i[0]).delete()
-    db_sess.query(Tests).filter(Tests.shelf_life <= current_date).delete()
-    db_sess.commit()
-    print('очистка')
-
-
-schedule.every().day.at("00:00").do(cleaning)
-
 if __name__ == '__main__':
     db_session.global_init("db/school8.db")
-    schedule.run_pending()
-    app.run(host='127.0.0.1', port=6112)
+    app.run(host='127.0.0.1', port=4444)
