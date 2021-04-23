@@ -1,10 +1,13 @@
 from flask import Flask
 import hashlib
+import schedule
 from random import choice, sample, randint
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from waitress import serve
 import vk_api
 from data import db_session
+from data.question import Question
+from data.tests import Tests
 from data.users import User
 from data.marks import Marks
 from data.exercises import Exercises
@@ -12,6 +15,7 @@ from forms.form_user import User_reg, User_authorize, \
     Join_to_class, Edit_name, Edit_surname, Class_num_add, \
     Add_class, Subject, Edit_mark, Delete_mark, Edit_homework, Add_homework
 from flask import request, redirect, render_template
+from datetime import datetime
 import datetime
 
 app = Flask(__name__)
@@ -428,6 +432,19 @@ def logout():
     return redirect("/")
 
 
+def cleaning():
+    db_sess = db_session.create_session()
+    current_date = datetime.now().date()
+    for i in db_sess.query(Tests.id).filter(Tests.shelf_life <= current_date).all():
+        db_sess.query(Question).filter(Question.id_test == i[0]).delete()
+    db_sess.query(Tests).filter(Tests.shelf_life <= current_date).delete()
+    db_sess.commit()
+    print('очистка')
+
+
+schedule.every().day.at("00:00").do(cleaning)
+
 if __name__ == '__main__':
     db_session.global_init("db/school8.db")
+    schedule.run_pending()
     app.run(host='127.0.0.1', port=6112)
