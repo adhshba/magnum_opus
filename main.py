@@ -481,56 +481,6 @@ def user_id():
     return redirect('/main_page')
 
 
-def cleaning():
-    db_sess = db_session.create_session()
-    current_date = datetime.now().date()
-    for i in db_sess.query(Tests.id).filter(Tests.shelf_life <= current_date).all():
-        db_sess.query(Question).filter(Question.id_test == i[0]).delete()
-    db_sess.query(Tests).filter(Tests.shelf_life <= current_date).delete()
-    db_sess.commit()
-
-
-def bot():
-    vk_session = vk_api.VkApi(
-        token=open('data/token.txt', mode='r').read())
-    longpoll = VkBotLongPoll(vk_session, '203859351')
-
-    for event in longpoll.listen():
-        if event.type == VkBotEventType.MESSAGE_NEW \
-                and event.obj.message['text'].lower() == 'дай дз':
-            db_sess = db_session.create_session()
-            if event.obj.message['from_id'] in [_[0] for _ in db_sess.query(User.vk_id).filter(
-                    (User.teacher == False) | (User.teacher == None)).all()]:
-                grade = db_sess.query(User.grade).filter(
-                    User.vk_id == event.obj.message['from_id']).first()[0]
-                for t_id, hom, date in db_sess.query(
-                        Exercises.teacher_id,
-                        Exercises.homework, Exercises.date).filter(
-                    Exercises.class_id == grade).all():
-                    subject = db_sess.query(User.subject).filter(
-                        User.id == t_id).all()
-                    vk = vk_session.get_api()
-                    vk.messages.send(user_id=event.obj.message['from_id'],
-                                     message=f"Задание за {date} по предмету {subject[0][0]} :",
-                                     random_id=random.randint(0, 2 ** 64))
-                    vk.messages.send(user_id=event.obj.message['from_id'],
-                                     message=f"{hom}",
-                                     random_id=random.randint(0, 2 ** 64))
-            else:
-                vk = vk_session.get_api()
-                vk.messages.send(user_id=event.obj.message['from_id'],
-                                 message="Вы не зарегистрированны в системе",
-                                 random_id=random.randint(0, 2 ** 64))
-        elif event.type == VkBotEventType.MESSAGE_ALLOW:
-            vk = vk_session.get_api()
-            vk.messages.send(user_id=event.obj.message['from_id'],
-                             message="Вы разрешили отправку вам сообщений'",
-                             random_id=random.randint(0, 2 ** 64))
-            vk.messages.send(user_id=event.obj.message['from_id'],
-                             message="Чтобы получить дз напишите:'дай дз'",
-                             random_id=random.randint(0, 2 ** 64))
-
-
 @app.route('/logout')
 @login_required
 def logout():
