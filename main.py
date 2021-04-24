@@ -16,7 +16,7 @@ from data.marks import Marks
 from data.exercises import Exercises
 from forms.form_user import User_reg, User_authorize, \
     Join_to_class, Edit_name, Edit_surname, Class_num_add, \
-    Add_class, Subject, Edit_mark, Delete_mark, Edit_homework, Add_homework
+    Add_class, Subject, Edit_mark, Delete_mark, Edit_homework, Add_homework, Create_test, Test
 from flask import request, redirect, render_template
 import datetime
 
@@ -248,7 +248,6 @@ def marks():
                 dict_marks[subject] = [{'date': i.date, 'mark': i.mark}]
             else:
                 dict_marks[subject].append({'date': i.date, 'mark': i.mark})
-        print(dict_marks)
         for key, val in dict_marks.items():
             print(val)
             sr_ball = [int(i['mark']) for i in val]
@@ -373,6 +372,38 @@ def edit_homework():
         return render_template('edit_homework.html', form=form)
 
 
+@app.route('/tests')
+def tests():
+    db_sess = db_session.create_session()
+    if current_user.teacher:
+        classes = get_classes('tests/table?class_id=')
+        return render_template('teacher_tests.html', classes=classes, choice=True)
+
+
+@app.route('/tests/table', methods=['GET', 'POST'])
+def create_new_test():
+    if current_user.teacher:
+        class_id = request.args.get('class_id')
+        form = Create_test()
+        if form.validate_on_submit():
+            kolvo = form.kolvo.data
+            return redirect(f'/tests/table/create?class_id={class_id}&kolvo={kolvo}')
+        return render_template('teacher_tests.html', choice=False, form=form)
+
+
+@app.route('/tests/table/create', methods=['GET', 'POST'])
+def create_test():
+    class_id = request.args.get('class_id')
+    kolvo = request.args.get('kolvo')
+    if request.method == 'GET':
+        return render_template('create_test.html', kolvo=int(kolvo))
+    elif request.method == 'POST':
+        for i in range(int(kolvo)):
+            print(request.form[f'question={i}'])
+
+    return render_template('create_test.html', kolvo=int(kolvo))
+
+
 @app.route('/homework/table/add', methods=['GET', 'POST'])
 @login_required
 def add_homework():
@@ -395,7 +426,7 @@ def add_homework():
                 db_sess.add(exercise)
                 db_sess.commit()
             # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            return redirect(f'http://127.0.0.1:4444/homework/table?class_id={class_id}')
+            return redirect(f'https://test.magnumopusproject.xyz/homework/table?class_id={class_id}')
         return render_template('add_homework.html', form=form)
 
 
@@ -506,10 +537,11 @@ def logout():
     logout_user()
     return redirect("/")
 
-schedule.every().day.at("00:00").do(cleaning)
+
+#schedule.every().day.at("00:00").do(cleaning)
 
 if __name__ == '__main__':
-    schedule.run_pending()
+    #schedule.run_pending()
     db_session.global_init("db/school8.db")
-    bot()
-    app.run(host='127.0.0.1', port=4444)
+
+    serve(run, host='0.0.0.0', port='5000')
