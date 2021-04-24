@@ -1,0 +1,37 @@
+{% extends "main_page.html" %}
+
+{% block content %}
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                {% for i in dates %}
+                    <th scope="col">{{i}}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for key, val in dict_marks.items() %}
+                <tr>
+                    <th scope="row">{{ key }}</th>
+                    {% for d in range((dates | length)) %}
+                        {% set ns = namespace(found=false) %}
+                        {% set ns.found = False %}
+                        {% for j in val %}
+                            {% if "sr_ball" in j and dates[d] == "Средний балл"%}
+                                <td>{{ j["sr_ball"] }}</td>
+                            {% else %}
+                                {% if j["date"] == dates[d] %}
+                                    {% set ns.found = True %}
+                                    <td>{{ j["mark"] }}</td>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        {% if dates[d] != "Предмет" and not ns.found and dates[d] != "Средний балл" %}
+                            <td></td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

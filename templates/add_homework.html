@@ -1,0 +1,30 @@
+{% extends "main_page.html" %}
+
+{% block content %}
+
+    <div class="add_hw">
+        <form action="" method="post" novalidate class="row g-3">
+            {{ form.hidden_tag() }}
+            <div class="form-floating">
+
+                {% if form.date.errors %}
+                    <p>{{form.date(class="form-control", type="date", role="alert", class="alert alert-danger",
+                        style="width: 500px; margin-left: 100px; margin-top: 30px")}}</p>
+                {% else %}
+                    <p>{{form.date(class="form-control", type="date", role="alert", class="alert alert-secondary", style="width: 500px;
+                        margin-left: 100px; margin-top: 30px")}}</p>
+                {% endif %}
+                {% if form.text.errors %}
+                    <p>{{form.text(class="form-control", role="alert", class="alert alert-danger",
+                        style="width: 800px; margin-left: 100px")}}</p>
+                {% else %}
+                    <p>{{form.text(class="form-control", role="alert", class="alert alert-secondary", style="width: 800px;
+                        margin-left: 100px;")}}</p>
+                {% endif %}
+                <p>{{form.submit(class="btn btn-secondary", type="submit", id="button-addon1",
+                    style="width: 150px; margin-left: 100px")}}</p>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}
