@@ -24,7 +24,7 @@ def main():
                     grade = db_sess.query(User.grade).filter(
                         User.vk_id == event.obj.message['from_id']).first()[0]
                     today = datetime.date.today()
-                        tomorrow = today + datetime.timedelta(days=1)
+                    tomorrow = today + datetime.timedelta(days=1)
                     if db_sess.query(Exercises.homework).filter(
                             Exercises.class_id == grade, Exercises.date == tomorrow).all():                   
                         for t_id, hom, date in db_sess.query(
