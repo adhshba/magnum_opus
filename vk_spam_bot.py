@@ -23,10 +23,10 @@ def main():
                         User.teacher == False).all()]:
                     grade = db_sess.query(User.grade).filter(
                         User.vk_id == event.obj.message['from_id']).first()[0]
-                    if db_sess.query(Exercises.homework).filter(
-                            Exercises.class_id == grade).all():
-                        today = datetime.date.today()
+                    today = datetime.date.today()
                         tomorrow = today + datetime.timedelta(days=1)
+                    if db_sess.query(Exercises.homework).filter(
+                            Exercises.class_id == grade, Exercises.date == tomorrow).all():                   
                         for t_id, hom, date in db_sess.query(
                                 Exercises.teacher_id,
                                 Exercises.homework, Exercises.date).filter(
@@ -41,7 +41,7 @@ def main():
                                              random_id=random.randint(0, 2 ** 64))
                     else:
                         vk.messages.send(user_id=event.obj.message['from_id'],
-                                         message="Отдыхайте вам ничего не задали",
+                                         message="Отдыхайте вам ничего не задали на завтра",
                                          random_id=random.randint(0, 2 ** 64))
                 else:
                     vk.messages.send(user_id=event.obj.message['from_id'],
