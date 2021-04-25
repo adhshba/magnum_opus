@@ -1,12 +1,9 @@
 from flask import Flask
 import hashlib
-import schedule
-from random import choice, sample, randint
+from random import choice, sample, randint, shuffle
 from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 from waitress import serve
 import vk_api
-from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
-import random
 from datetime import datetime
 from data import db_session
 from data.question import Question
@@ -63,13 +60,8 @@ def register():
                                    form=form,
                                    message="Такой логин уже существует!")
         user = User()
-        if form.name.data.isalpha() and form.surname.data.isalpha():
-            user.name = form.name.data.capitalize()
-            user.surname = form.surname.data.capitalize()
-        else:
-            return render_template('register.html', title='Регистрация',
-                                   form=form,
-                                   message="Введите настоящую фамилию и имя!")
+        user.name = form.name.data.capitalize()
+        user.surname = form.surname.data.capitalize()
         user.login = form.login.data
         if form.teacher.data:
             while True:
@@ -253,8 +245,8 @@ def marks():
             sr_ball = [int(i['mark']) for i in val]
             dict_marks[key].append({'sr_ball': sum(sr_ball) / len(sr_ball)})
         dates.append('Средний балл')
-
-        return render_template('student_marks.html', dates=dates, dict_marks=dict_marks)
+        return render_template('student_marks.html', dates=dates, dict_marks=dict_marks,
+                               title='Оценки')
 
 
 @app.route('/marks/table')
@@ -292,7 +284,9 @@ def table_marks():
                 dates.append(i)
         dates.append('Средний балл')
         class_id = 'table/add?class_id=' + class_id
-        return render_template('teacher_marks.html', edit=True, marks=marks_dict, dates=dates, class_id=class_id)
+        return render_template('teacher_marks.html', edit=True, marks=marks_dict,
+                               dates=dates, class_id=class_id,
+                               title='Оценки')
 
 
 @app.route('/marks/table/edit', methods=['GET', 'POST'])
@@ -315,7 +309,7 @@ def edit_marks():
         db_sess.commit()
         return redirect('/marks')
     return render_template('edit_mark.html', surname=student.surname, date=mark.date,
-                           form_edit=form_edit, form_delete=form_delete)
+                           form_edit=form_edit, form_delete=form_delete, title='Редактирование оценок')
 
 
 @app.route('/homework')
@@ -333,7 +327,7 @@ def homework():
         for i in homeworks:
             subject = db_sess.query(User).filter(User.id == i.teacher_id, User.teacher).first().subject
             hw_list.append({'date': i.date, 'text': i.homework, 'subject': subject})
-        return render_template('student_homework.html', hw_list=hw_list, table=True)
+        return render_template('student_homework.html', hw_list=hw_list, table=True, title='Домашние работы')
 
 
 @app.route('/homework/table')
@@ -352,7 +346,7 @@ def table_homework():
                                    'text': i.homework})
         class_id = '/homework/table/add?class_id=' + class_id
         return render_template('teacher_homework.html', table=False,
-                               homeworks_dict=homeworks_dict, class_id=class_id)
+                               homeworks_dict=homeworks_dict, class_id=class_id, title='Домашние работы')
 
 
 @app.route('/homework/table/edit', methods=['GET', 'POST'])
@@ -369,39 +363,124 @@ def edit_homework():
             db_sess.add(task)
             db_sess.commit()
             return redirect(class_id)
-        return render_template('edit_homework.html', form=form)
+        return render_template('edit_homework.html', form=form, title='Редактирование домашней работы')
 
 
 @app.route('/tests')
+@login_required
 def tests():
     db_sess = db_session.create_session()
     if current_user.teacher:
         classes = get_classes('tests/table?class_id=')
-        return render_template('teacher_tests.html', classes=classes, choice=True)
+        return render_template('teacher_tests.html', classes=classes, choice=True, title='Выбор класса')
+    else:
+        id = str(current_user.id)
+        stud_tests = db_sess.query(Tests).\
+            filter(Tests.class_id == current_user.grade).all()
+        tests = []
+        for i in stud_tests:
+            if not(i.students) or str(current_user.id) not in i.students.split(';'):
+                tests.append({'subject': i.subject,
+                              'href': f'/tests/pass?test_id={i.id}&subject={i.subject}',
+                              'name': i.name})
+        return render_template('choice_test.html', title="Доступные тесты", tests=tests)
+
+
+@app.route('/tests/pass', methods=['GET', 'POST'])
+@login_required
+def pass_test():
+    if not current_user.teacher:
+        db_sess = db_session.create_session()
+        test_id = request.args.get('test_id')
+        subject = request.args.get('subject')
+        if request.method == 'GET':
+            questions = db_sess.query(Question).filter(Question.id_test == test_id).all()
+            questions_list = []
+            global ides
+            ides = []
+            for i in questions:
+                questions_list.append({'question': i.question, 'answers': i.answer_options.split('&'), 'id': i.id})
+                ides.append(i.id)
+            return render_template('test.html', questions_list=questions_list, subject=subject, title='Тест')
+        elif request.method == 'POST':
+            true_answers = 0
+            for i in ides:
+                correct_answer = db_sess.query(Question).filter(Question.id == i).first().correct_answer
+                if request.form[f'answer={i}'] == correct_answer:
+                    true_answers += 1
+            percent = 100 / len(ides) * true_answers
+            if percent >= 85:
+                mark1 = 5
+            elif 70 <= percent < 85:
+                mark1 = 4
+            elif 50 <= percent < 70:
+                mark1 = 3
+            elif percent < 50:
+                mark1 = 2
+            test = db_sess.query(Tests).filter(Tests.id == test_id).first()
+            if test.students:
+                test.students = test.students + str(current_user.id) + ';'
+            else:
+                test.students = str(current_user.id) + ';'
+            mark = Marks()
+            mark.teacher_id = test.teacher_id
+            mark.user_id = current_user.id
+            mark.mark = mark1
+            db_sess.add(mark)
+            db_sess.add(test)
+            db_sess.commit()
+            return redirect('/main_page')
 
 
 @app.route('/tests/table', methods=['GET', 'POST'])
 def create_new_test():
+    db_sess = db_session.create_session()
     if current_user.teacher:
         class_id = request.args.get('class_id')
         form = Create_test()
         if form.validate_on_submit():
             kolvo = form.kolvo.data
-            return redirect(f'/tests/table/create?class_id={class_id}&kolvo={kolvo}')
-        return render_template('teacher_tests.html', choice=False, form=form)
+            name = form.name.data
+            test = Tests()
+            x = db_sess.query(Tests).filter(Tests.class_id == class_id, Tests.name == name).first()
+            if x:
+                db_sess.delete(x)
+                db_sess.commit()
+            test.name = name
+            test.teacher_id = current_user.id
+            test.class_id = class_id
+            test.subject = current_user.subject
+            db_sess.add(test)
+            db_sess.commit()
+            test_id = db_sess.query(Tests).filter(Tests.class_id == class_id, Tests.name == name).first().id
+            return redirect(f'/tests/table/create?class_id={class_id}&kolvo={kolvo}&test_id={test_id}')
+        return render_template('teacher_tests.html', choice=False, form=form, title='Тест')
 
 
 @app.route('/tests/table/create', methods=['GET', 'POST'])
+@login_required
 def create_test():
-    class_id = request.args.get('class_id')
-    kolvo = request.args.get('kolvo')
-    if request.method == 'GET':
-        return render_template('create_test.html', kolvo=int(kolvo))
-    elif request.method == 'POST':
-        for i in range(int(kolvo)):
-            print(request.form[f'question={i}'])
-
-    return render_template('create_test.html', kolvo=int(kolvo))
+    if current_user.teacher:
+        class_id = request.args.get('class_id')
+        kolvo = request.args.get('kolvo')
+        test_id = request.args.get('test_id')
+        db_sess = db_session.create_session()
+        if request.method == 'GET':
+            return render_template('create_test.html', kolvo=int(kolvo), title='Создание теста')
+        elif request.method == 'POST':
+            for i in range(int(kolvo)):
+                question = Question()
+                question.question = request.form[f'question={i}']
+                question.correct_answer = request.form[f'true_answer={i}']
+                question.id_test = test_id
+                question.subject = current_user.subject
+                x = [request.form[f'answer2={i}'], request.form[f'answer3={i}'],
+                     request.form[f'answer4={i}'], request.form[f'true_answer={i}']]
+                shuffle(x)
+                question.answer_options = '&'.join(x)
+                db_sess.add(question)
+                db_sess.commit()
+            return redirect('/main_page')
 
 
 @app.route('/homework/table/add', methods=['GET', 'POST'])
@@ -415,7 +494,6 @@ def add_homework():
             exercise = Exercises()
             exercise.homework = form.text.data
             exercise.class_id = class_id
-
             exercise.teacher_id = current_user.id
             date = form.date.data
             ex = db_sess.query(Exercises).filter(Exercises.date == date).first()
@@ -427,7 +505,7 @@ def add_homework():
                 db_sess.commit()
             # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             return redirect(f'https://test.magnumopusproject.xyz/homework/table?class_id={class_id}')
-        return render_template('add_homework.html', form=form)
+        return render_template('add_homework.html', form=form, title='Добавить домашнюю работу')
 
 
 @app.route('/marks/table/add', methods=['GET', 'POST'])
@@ -440,7 +518,7 @@ def add_mark():
             order_by(User.surname.asc()).all()
         surnames = [i.surname for i in students]
         if request.method == 'GET':
-            return render_template('add_marks.html', surnames=surnames)
+            return render_template('add_marks.html', surnames=surnames, title='Поставить оценку')
         elif request.method == 'POST':
             try:
                 date = request.form['date']
@@ -458,7 +536,7 @@ def add_mark():
                     mark.mark = int(request.form[i])
                     db_sess.add(mark)
                     db_sess.commit()
-                    return redirect(f'/marks/table?class_id={class_id}')
+                return redirect(f'/marks/table?class_id={class_id}')
             except Exception:
                 return redirect(f'/marks/table?class_id={class_id}')
 
@@ -477,10 +555,10 @@ def user_id():
     vk = vk_session.get_api()
     vk.messages.send(user_id=uid,
                      message="Вы разрешили отправку вам сообщений",
-                     random_id=random.randint(0, 2 ** 64))
+                     random_id=randint(0, 2 ** 64))
     vk.messages.send(user_id=uid,
-                     message="Чтобы получить дз напишите:'дай дз'",
-                     random_id=random.randint(0, 2 ** 64))
+                     message="Чтобы получить дз напишите: 'дай дз'",
+                     random_id=randint(0, 2 ** 64))
     return redirect('/main_page')
 
 
@@ -492,6 +570,6 @@ def logout():
 
 
 if __name__ == '__main__':
-    db_session.global_init("db/school8.db")
-
-    serve(run, host='0.0.0.0', port='5000')
+    db_session.global_init("db/school11.db")
+    # app.run(host='127.0.0.1', port=5000)
+    serve(app, host='0.0.0.0', port=5000)
