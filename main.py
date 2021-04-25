@@ -241,7 +241,6 @@ def marks():
             else:
                 dict_marks[subject].append({'date': i.date, 'mark': i.mark})
         for key, val in dict_marks.items():
-            print(val)
             sr_ball = [int(i['mark']) for i in val]
             dict_marks[key].append({'sr_ball': sum(sr_ball) / len(sr_ball)})
         dates.append('Средний балл')
@@ -426,6 +425,11 @@ def pass_test():
             mark.teacher_id = test.teacher_id
             mark.user_id = current_user.id
             mark.mark = mark1
+            x = db_sess.query(Marks).filter(Marks.date == datetime.date.today(),
+                                            Marks.teacher_id == test.teacher_id,
+                                            Marks.user_id == current_user.id).first()
+            if x:
+                db_sess.delete(x)
             db_sess.add(mark)
             db_sess.add(test)
             db_sess.commit()
@@ -520,25 +524,25 @@ def add_mark():
         if request.method == 'GET':
             return render_template('add_marks.html', surnames=surnames, title='Поставить оценку')
         elif request.method == 'POST':
-            try:
                 date = request.form['date']
                 date = datetime.date(*[int(i) for i in date.split('-')])
                 for i in surnames:
                     student = db_sess.query(User).filter(User.surname == i, User.grade == class_id).first()
-                    students_marks = db_sess.query(Marks).filter(Marks.user_id == student.id, Marks.date == date).first()
-                    if students_marks:
+                    students_marks = db_sess.query(Marks).\
+                        filter(Marks.user_id == student.id, Marks.date == date).first()
+                    if students_marks and request.form[i]:
                         db_sess.delete(students_marks)
                         db_sess.commit()
                     mark = Marks()
                     mark.user_id = int(student.id)
                     mark.teacher_id = int(current_user.id)
                     mark.date = date
-                    mark.mark = int(request.form[i])
-                    db_sess.add(mark)
-                    db_sess.commit()
+                    if request.form[i]:
+                        mark.mark = int(request.form[i])
+                        db_sess.add(mark)
+                        db_sess.commit()
                 return redirect(f'/marks/table?class_id={class_id}')
-            except Exception:
-                return redirect(f'/marks/table?class_id={class_id}')
+
 
 
 @app.route('/reg')
@@ -570,6 +574,7 @@ def logout():
 
 
 if __name__ == '__main__':
-    db_session.global_init("db/schools.db")
-    # app.run(host='127.0.0.1', port=5000)
-    serve(app, host='0.0.0.0', port=5000)
+    db_session.global_init("db/school11.db")
+    app.run(host='127.0.0.1', port=5000)
+    # serve(app, host='0.0.0.0', port=5000)
+
