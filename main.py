@@ -508,7 +508,7 @@ def add_homework():
                 db_sess.add(exercise)
                 db_sess.commit()
             # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            return redirect(f'http://127.0.0.1:5000/homework/table?class_id={class_id}')
+            return redirect(f'https://test.magnumopusproject.xyz/homework/table?class_id={class_id}')
         return render_template('add_homework.html', form=form, title='Добавить домашнюю работу')
 
 
@@ -575,6 +575,6 @@ def logout():
 
 if __name__ == '__main__':
     db_session.global_init("db/schools.db")
-    app.run(host='127.0.0.1', port=5000)
-    # serve(app, host='0.0.0.0', port=5000)
+    # app.run(host='127.0.0.1', port=5000)
+    serve(app, host='0.0.0.0', port=5000)
 
