@@ -1,0 +1,12 @@
+{% extends "main_page.html" %}
+
+{% block content %}
+
+    {% for i in hw_list %}
+        <div class="add_hw">
+            <h1>Домашняя работа на {{i.date}} по предмету {{i.subject}}</h1>
+            <h3>{{i.text}}</h3>
+        </div><br>
+    {% endfor %}
+
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "main_page.html" %}
+
+{% block content %}
+
+    <h1 style="margin-top: 20px; margin-left: 20px">Создайте тест!</h1>
+        <form action="" method="post" novalidate class="row g-3">
+                {% for i in range(kolvo) %}
+                    <div class="test">
+                        {% set a = i + 1 %}
+                        <h3 class="question create">Вопрос №{{a}}</h3>
+                        <div class="form-floating">
+                            <input type="text" name="question={{i}}" class="form-control" id="floatingInput">
+                            <label for="floatingInput">Вопрос</label>
+                        </div>
+                        <div class="form-floating create">
+                            <input type="text" name="true_answer={{i}}" class="form-control" id="floatingInput">
+                            <label for="floatingInput">Правильный ответ</label>
+                        </div>
+                        <div class="form-floating create">
+                            <input type="text" name="answer2={{i}}" class="form-control" id="floatingInput">
+                            <label for="floatingInput">Неправильный ответ</label>
+                        </div>
+                        <div class="form-floating create">
+                            <input type="text" name="answer3={{i}}" class="form-control" id="floatingInput">
+                            <label for="floatingInput">Неправильный ответ</label>
+                        </div>
+                        <div class="form-floating create">
+                            <input type="text" name="answer4={{i}}" class="form-control" id="floatingInput">
+                            <label for="floatingInput">Неправильный ответ</label>
+                        </div>
+                    </div>
+                {% endfor %}
+
+            <button type="submit" class="btn btn-dark" style="margin-left: 20px; width: 150px; margin-bottom: 10px">Добавить</button>
+        </form>
+
+
+{% endblock %}

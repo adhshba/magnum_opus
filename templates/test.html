@@ -1,0 +1,29 @@
+{% extends "main_page.html" %}
+
+{% block content %}
+
+    <h1 style="margin-left: 20px">Тест по {{subject}}</h1>
+    <h6 style="margin-left: 20px">Скопируйте и вставьте ответ, который вы считаете правильным</h6>
+    <form action="" method="post" novalidate class="row g-3">
+        {% for i in questions_list %}
+            <div style="margin-left: 20px; border: 2px solid black; border-radius: 10px">
+            <h2 style="margin-left: 20px; margin-bottom: 30px">Вопрос №{{loop.index}}</h2>
+            <h3 style="margin-left: 20px">{{i["question"]}}</h3>
+            <h6 style="margin-left: 20px">Варианты ответов:</h6>
+            <p><div class="container">
+              <div class="row row-cols-2">
+                <div class="col">{{i["answers"][0]}}</div>
+                <div class="col">{{i["answers"][1]}}</div>
+                <div class="col">{{i["answers"][2]}}</div>
+                <div class="col">{{i["answers"][3]}}</div>
+              </div>
+            </div></p>
+            <div class="form-floating">
+                <input type="text" name="answer={{i['id']}}" class="form-control" id="floatingInput" style="margin-bottom: 15px">
+                <label for="floatingInput">Ответ</label>
+            </div>
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-dark" style="margin-left: 20px; width: 150px; margin-bottom: 10px">Добавить</button>
+    </form>
+{% endblock %}

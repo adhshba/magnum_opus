@@ -1,0 +1,155 @@
+{% extends  "main_page.html" %}
+
+{% block content %}
+
+    <div class="stud_data">
+        <h3 style="color: #D7D7D7; margin-left:25px; margin-top:5px">Данные ученика</h3>
+        <h5>
+            <div class="container px-1">
+                <div class="row gx-1">
+                    <div class="col">
+                        <div class="p-1 border bg"><pre>Фамилия:      {{ surname }}</pre></div>
+                    </div>
+                    <div class="col">
+                        <div class="p-1 border bg">
+                            <form action="" method="post" novalidate class="row g-3">
+                                {{ form_surname.hidden_tag() }}
+                                <div class="input-group mb-3">
+                                    {{ form_surname.submit(class="btn btn-secondary", type="submit", id="button-addon1") }}
+                                    {{ form_surname.surname(class="form-control", placeholder="Измените фамилию") }}
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </h5>
+        <h5>
+            <div class="container px-1">
+                <div class="row gx-1">
+                    <div class="col">
+                        <div class="p-1 border bg"><pre>Имя:          {{ name }}</pre></div>
+                    </div>
+                    <div class="col">
+                        <div class="p-1 border bg">
+                            <form action="" method="post" novalidate class="row g-3">
+                                {{ form_name.hidden_tag() }}
+                                <div class="input-group mb-3">
+                                    {{ form_name.submit(class="btn btn-secondary", type="submit", id="button-addon1") }}
+                                    {{ form_name.name(class="form-control", placeholder="Измените имя") }}
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </h5>
+        {% if grade %}
+            <h5>
+                <div class="container px-1">
+                    <div class="row gx-1">
+                        <div class="col">
+                            <div class="p-1 border bg"><pre>ID класса:</pre></div>
+                        </div>
+                        <div class="col">
+                            <div class="p-1 border bg"><pre>{{ grade_id }}</pre></div>
+                        </div>
+                    </div>
+                </div>
+            </h5>
+            <h5>
+                <div class="container px-1">
+                    <div class="row gx-1">
+                        <div class="col">
+                            <div class="p-1 border bg"><pre>Класс:</pre></div>
+                        </div>
+                        <div class="col">
+                            <div class="p-1 border bg"><pre>{{ class_num }}</pre></div>
+                        </div>
+                    </div>
+                </div>
+            </h5>
+            <div id="vk_allow_messages_from_community" style="margin-left: 28px; margin-bottom: 7px;"></div>
+                <script type="text/javascript" class="vk">
+                VK.Widgets.AllowMessagesFromCommunity("vk_allow_messages_from_community", {height: 30}, 203859351);
+
+                VK.Observer.subscribe("widgets.allowMessagesFromCommunity.allowed", function f(userId) {
+
+                    document.location.href = "/reg?user_id=" + userId;
+                  });
+                </script>
+        {% else %}
+            <script>
+                var collapseElementList = [].slice.call(document.querySelectorAll('.collapse'))
+                var collapseList = collapseElementList.map(function (collapseEl) {
+                  return new bootstrap.Collapse(collapseEl)
+                })
+            </script>
+                <h5>
+                    <div class="container px-1">
+                        <div class="row gx-1">
+                            <div class="col">
+                                <div class="p-1 border bg"><pre>ID класса:</pre></div>
+                            </div>
+                            <div class="col">
+                                <div class="p-1 border bg">
+                                    <button class="btn btn-secondary" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapseExample" aria-expanded="false"
+                                            aria-controls="collapseExample" style="width: 440px">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-plus-square" viewBox="0 0 16 16">
+                                            <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
+                                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </h5>
+            <div class="collapse" id="collapseExample">
+                <div class="card card-body">
+                    <form action="" method="post" novalidate class="row g-3">
+                        {{ form.hidden_tag() }}
+                        <div class="input-group mb-3">
+                            {{ form.submit(class="btn btn-secondary", type="submit", id="button-addon1") }}
+                            {{ form.class_id(class="form-control", placeholder="") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    {% if disabled %}
+        <div class="btns">
+            <form action="/homework">
+            <button class="btn btn-dark three" style="width: 1000px" disabled>
+                <h1>Журнал</h1></button><br>
+            </form>
+            <form action="/marks">
+            <button class="btn btn-dark three" style="width: 1000px" disabled>
+                <h1>Оценки</h1></button><br>
+            </form>
+            <form action="/tests">
+            <button class="btn btn-dark three" style="width: 1000px" disabled>
+                <h1>Тесты</h1></button><br>
+            </form>
+        </div>
+    {% else %}
+        <div class="btns">
+            <a type="button" class="btn btn-dark three" href="/homework" style="width: 1000px;">
+                <h1 class="menu-text">Журнал</h1></a><br>
+            <a type="button" class="btn btn-dark three" href="/marks" style="margin-left: 150px; width: 800px">
+                <h1 class="menu-text">Оценки</h1></a><br>
+            <a type="button" class="btn btn-dark three" href="/tests" style="width: 1000px">
+                <h1 class="menu-text">Тесты</h1></a><br>
+        </div>
+    {% endif %}
+    {% if message != "" %}
+        <div id="footer">
+            <div class="alert alert-warning error_al" role="alert">
+                {{ message }}
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}

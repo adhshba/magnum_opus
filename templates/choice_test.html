@@ -1,0 +1,14 @@
+{% extends "main_page.html" %}
+
+{% block content %}
+
+    <h1>Доступные тесты</h1>
+    {% for i in tests %}
+        <div class="add_hw">
+            <h3 style="margin-left: 20px; margin-top: 10px">Тест по предмету: {{i["subject"]}}</h3>
+            <h3 style="margin-left: 20px">Тема: {{i["name"]}}</h3>
+            <p style="margin-left: 20px; margin-bottom: 10px"><a href={{i["href"]}}><button class="btn btn-dark">Выполнить</button></a></p>
+        </div>
+    {% endfor %}
+
+{% endblock %}
