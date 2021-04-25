@@ -1,3 +1,5 @@
+import datetime
+
 import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 import random
@@ -23,10 +25,12 @@ def main():
                         User.vk_id == event.obj.message['from_id']).first()[0]
                     if db_sess.query(Exercises.homework).filter(
                             Exercises.class_id == grade).all():
+                        today = datetime.date.today()
+                        tomorrow = today + datetime.timedelta(days=1)
                         for t_id, hom, date in db_sess.query(
                                 Exercises.teacher_id,
                                 Exercises.homework, Exercises.date).filter(
-                            Exercises.class_id == grade).all():
+                            Exercises.class_id == grade, Exercises.date == tomorrow).all():
                             subject = db_sess.query(User.subject).filter(
                                 User.id == t_id).all()
                             vk.messages.send(user_id=event.obj.message['from_id'],
