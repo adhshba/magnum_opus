@@ -473,11 +473,14 @@ def user_id():
     db_sess.add(user)
     db_sess.commit()
     vk_session = vk_api.VkApi(
-        token='f9836a8124cc485088702ca2355fb0371c3d5750277eefb157e170c7252e3f10176bfbded6c08e6f70d2f')
+        token=open('data/token.txt', mode='r').read())
     vk = vk_session.get_api()
     vk.messages.send(user_id=uid,
-                     message="Спасибо, что написали нам. Мы обязательно ответим",
-                     random_id=randint(0, 2 ** 64))
+                     message="Вы разрешили отправку вам сообщений",
+                     random_id=random.randint(0, 2 ** 64))
+    vk.messages.send(user_id=uid,
+                     message="Чтобы получить дз напишите:'дай дз'",
+                     random_id=random.randint(0, 2 ** 64))
     return redirect('/main_page')
 
 
@@ -488,10 +491,7 @@ def logout():
     return redirect("/")
 
 
-#schedule.every().day.at("00:00").do(cleaning)
-
 if __name__ == '__main__':
-    #schedule.run_pending()
     db_session.global_init("db/school8.db")
 
     serve(run, host='0.0.0.0', port='5000')
